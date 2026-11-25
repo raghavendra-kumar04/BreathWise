@@ -90,10 +90,12 @@ BreatheWise includes automated test suites covering core mathematical formulas, 
 npm test
 ```
 
-### Test Suite Coverage:
+### Test Suite Coverage (36 Tests across 5 Suites):
 - **`src/tests/aqiCalculator.test.ts`**: Validates CPCB piecewise linear interpolation across all six AQI categories (`Good`, `Satisfactory`, `Moderate`, `Poor`, `Very Poor`, `Severe`), breakpoint boundaries, pollutant capping, and prominent driver identification.
 - **`src/tests/emissionsCalculator.test.ts`**: Verifies MoPNG $\text{CO}_2$ reduction math, particulate matter avoided, and monthly INR savings when switching transit modes.
 - **`src/tests/geoUtils.test.ts`**: Tests Haversine great-circle distance accuracy and validates that distances $>30\text{ km}$ correctly trigger the localized dispersion fallback.
+- **`src/tests/personaRisk.test.ts`**: Tests dynamic clinical and physiological decision support across 4 vulnerability profiles (`Asthmatic`, `Pediatric`, `Senior`, `Daily Commuter`), ensuring lowered risk thresholds (AQI 50) and pre-medication warnings fire accurately.
+- **`src/tests/apiEndpoints.test.ts`**: Full integration tests using Supertest verifying `/api/health`, rural station query resilience, 401 JWT unauthorized protections on private routes (`/auth/me`, `/planner`, `/assistant`, `/community`), and transit simulator calculation endpoints.
 
 ---
 
