@@ -7,6 +7,7 @@ export const config = {
   mongodbUri: process.env.MONGODB_URI || 'mongodb://localhost:27017/breathewise',
   jwtSecret: process.env.JWT_SECRET || 'dev_jwt_secret_change_in_production_min_32_chars',
   geminiApiKey: process.env.GEMINI_API_KEY || '',
+  groqApiKey: process.env.GROQ_API_KEY || '',
   dataGovApiKey: process.env.DATA_GOV_API_KEY || '',
   clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
 };

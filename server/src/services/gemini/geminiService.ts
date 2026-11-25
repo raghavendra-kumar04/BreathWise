@@ -1,6 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
 import { z } from 'zod';
 import { config } from '../../config/env';
+import { GroqService } from '../groq/groqService';
 
 // 1. Zod Validation Schema for Gemini Output
 export const GeneratedPlanSchema = z.object({
@@ -114,23 +115,37 @@ REQUIRED JSON RESPONSE STRUCTURE:
 
 Provide 4 to 6 distinct, highly practical recommendations tailored to this user's profile and today's air quality.`;
 
+    // Step 1: Try Gemini
     try {
+      const ai = this.getClient();
       const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.5-flash-lite',
         contents: [
           { role: 'user', parts: [{ text: `${systemPrompt}\n\n${userPrompt}` }] }
         ],
         config: {
           responseMimeType: 'application/json',
-          temperature: 0.2, // Low temperature for high consistency and factual grounding
+          temperature: 0.2,
         },
       });
 
       const rawText = response.text || '{}';
       const parsed = JSON.parse(rawText);
       return GeneratedPlanSchema.parse(parsed);
-    } catch (err: any) {
-      console.error('Gemini generation error, using rule-based fallback:', err);
+    } catch (geminiErr: any) {
+      console.warn('Gemini generation error, checking Groq fallback...', geminiErr.message);
+
+      // Step 2: Groq Fallback (LLaMA-3.3 70B)
+      if (GroqService.isAvailable()) {
+        try {
+          console.log('⚡ Groq Fallback Active: Generating plan with LLaMA-3.3...');
+          return await GroqService.generateDailyPlan(systemPrompt, userPrompt);
+        } catch (groqErr: any) {
+          console.error('Groq plan generation failed:', groqErr.message);
+        }
+      }
+
+      // Step 3: Deterministic Rule-Based Fallback
       return this.getRuleBasedFallbackPlan(params);
     }
   }
@@ -181,20 +196,38 @@ GUIDELINES:
       { role: 'user', parts: [{ text: params.message }] },
     ];
 
+    // Step 1: Try Gemini
     try {
+      const ai = this.getClient();
       const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.5-flash-lite',
         contents: chatContents as any,
         config: {
           temperature: 0.3,
         },
       });
 
-      return response.text || 'I could not process that query. Please try again.';
-    } catch (err: any) {
-      console.error('Gemini chat error:', err);
-      return `Currently experiencing high demand or awaiting API key setup. Based on your location (${params.environmentalContext.city}) with an AQI of ${params.environmentalContext.aqi} (${params.environmentalContext.category}), please consider wearing a well-fitting N95/N99 mask outdoors, keeping windows closed during morning traffic peaks, and using kitchen exhausts.`;
+      if (response.text) {
+        return response.text;
+      }
+    } catch (geminiErr: any) {
+      console.warn('Gemini chat error, checking Groq fallback...', geminiErr.message);
+
+      // Step 2: Groq Fallback (LLaMA-3.3 70B)
+      if (GroqService.isAvailable()) {
+        try {
+          console.log('⚡ Groq Fallback Active: Answering query with LLaMA-3.3...');
+          return await GroqService.chat(systemPrompt, params.conversationHistory, params.message);
+        } catch (groqErr: any) {
+          console.error('Groq chat failed:', groqErr.message);
+        }
+      }
+
+      // Step 3: Context-aware fallback response
+      return `Currently experiencing high demand or awaiting API key setup. Based on your location (${params.environmentalContext.city}) with an AQI of ${params.environmentalContext.aqi} (${params.environmentalContext.category}), outdoor cardio is ${params.environmentalContext.aqi <= 50 ? 'favorable and clean' : 'recommended with caution'}. Please consider wearing a well-fitting N95 mask during high-traffic hours, keeping windows closed during early morning inversion, and using kitchen exhausts.`;
     }
+
+    return 'I could not process that query. Please try again.';
   }
 
   /**
