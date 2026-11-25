@@ -15,9 +15,28 @@ const app: Application = express();
 
 // Security middleware
 app.use(helmet());
+
+// Dynamic CORS configuration: normalize trailing slashes and allow both with/without slash
+const allowedOrigins = [
+  config.clientUrl.replace(/\/+$/, ''),
+  config.clientUrl.endsWith('/') ? config.clientUrl : `${config.clientUrl}/`,
+  'http://localhost:5173',
+  'http://localhost:5174',
+];
+
 app.use(cors({
-  origin: config.clientUrl,
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, or Postman)
+    if (!origin) return callback(null, true);
+    const normalizedOrigin = origin.replace(/\/+$/, '');
+    if (allowedOrigins.some(allowed => allowed.replace(/\/+$/, '') === normalizedOrigin)) {
+      return callback(null, true);
+    }
+    return callback(new Error(`Origin ${origin} not allowed by CORS`));
+  },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
 // Body parser
