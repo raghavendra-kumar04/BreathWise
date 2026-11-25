@@ -41,6 +41,7 @@ export const PlannerPage: React.FC = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['dailyPlanToday'] });
+      queryClient.invalidateQueries({ queryKey: ['plannerStreak'] });
     },
   });
 
@@ -52,7 +53,19 @@ export const PlannerPage: React.FC = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['dailyPlanToday'] });
+      queryClient.invalidateQueries({ queryKey: ['plannerStreak'] });
     },
+  });
+
+  // 4. Streak & Adherence Query
+  const { data: streakData } = useQuery({
+    queryKey: ['plannerStreak'],
+    queryFn: async () => {
+      const res = await api.get('/planner/streak');
+      return res.data;
+    },
+    enabled: true,
+    staleTime: 1000 * 60 * 2,
   });
 
   const getCategoryIcon = (cat: string) => {
@@ -76,6 +89,9 @@ export const PlannerPage: React.FC = () => {
   const completedCount = plan?.recommendations?.filter((r: any) => r.completed)?.length || 0;
   const totalCount = plan?.recommendations?.length || 0;
   const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+  const streak = streakData?.streak ?? 0;
+  const adherencePercent = streakData?.adherencePercent ?? progressPercent;
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 font-sans space-y-8">
@@ -101,6 +117,37 @@ export const PlannerPage: React.FC = () => {
           <RefreshCw className={`w-4 h-4 ${generateMutation.isPending ? 'animate-spin' : ''}`} />
           <span>{generateMutation.isPending ? 'Generating with Gemini...' : plan ? 'Regenerate Plan' : 'Generate Today\'s Plan'}</span>
         </button>
+      </div>
+
+      {/* Streak & Adherence Banner */}
+      <div className="flex flex-wrap gap-3">
+        {streak > 0 && (
+          <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-amber/10 border border-amber/20 shadow-xs">
+            <span className="text-lg">🔥</span>
+            <div>
+              <p className="text-xs font-extrabold text-amber-dark">Day {streak} streak!</p>
+              <p className="text-[10px] text-charcoal/60">Protecting your lungs consistently</p>
+            </div>
+          </div>
+        )}
+        {totalCount > 0 && (
+          <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-forest/10 border border-forest/20 shadow-xs">
+            <span className="text-lg">🛡️</span>
+            <div>
+              <p className="text-xs font-extrabold text-forest">{completedCount}/{totalCount} tasks today</p>
+              <p className="text-[10px] text-charcoal/60">{adherencePercent}% adherence today</p>
+            </div>
+          </div>
+        )}
+        {streak === 0 && totalCount === 0 && (
+          <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-sage/10 border border-sage/20 shadow-xs">
+            <span className="text-lg">🌱</span>
+            <div>
+              <p className="text-xs font-extrabold text-forest">Start your streak today!</p>
+              <p className="text-[10px] text-charcoal/60">Complete tasks to build your lung-protection habit</p>
+            </div>
+          </div>
+        )}
       </div>
 
       {isLoading ? (

@@ -25,6 +25,7 @@ export interface UserPreferences {
       commuteEnd?: string;
     };
   };
+  healthSensitivity: 'normal' | 'mild-allergy' | 'asthmatic' | 'copd' | 'senior' | 'pediatric';
   budget: 'low-cost' | 'moderate' | 'premium';
   interests: string[];
   notificationEnabled: boolean;

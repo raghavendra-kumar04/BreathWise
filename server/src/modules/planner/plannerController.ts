@@ -32,6 +32,64 @@ export class PlannerController {
   }
 
   /**
+   * GET /api/planner/streak
+   * Returns current adherence streak (consecutive days with ≥1 completed task)
+   */
+  static async getStreak(req: AuthRequest, res: Response) {
+    try {
+      if (!req.user) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
+
+      const userId = new mongoose.Types.ObjectId(req.user.userId);
+      const todayStr = new Date().toISOString().split('T')[0];
+
+      // Fetch last 30 days of plans, sorted descending
+      const plans = await DailyPlan.find({ userId })
+        .sort({ date: -1 })
+        .limit(30)
+        .select('date recommendations')
+        .lean();
+
+      // Build a set of dates that had ≥1 completed task
+      const completedDates = new Set(
+        plans
+          .filter((p: any) => p.recommendations?.some((r: any) => r.completed))
+          .map((p: any) => p.date)
+      );
+
+      // Walk backwards from today counting consecutive days
+      let streak = 0;
+      const checkDate = new Date();
+      for (let i = 0; i < 30; i++) {
+        const dateStr = checkDate.toISOString().split('T')[0];
+        if (completedDates.has(dateStr)) {
+          streak++;
+          checkDate.setDate(checkDate.getDate() - 1);
+        } else {
+          // If today has no completed tasks yet, skip today (don't break streak)
+          if (dateStr === todayStr) {
+            checkDate.setDate(checkDate.getDate() - 1);
+            continue;
+          }
+          break;
+        }
+      }
+
+      // Today's plan adherence summary
+      const todayPlan = plans.find((p: any) => p.date === todayStr);
+      const completedToday = todayPlan?.recommendations?.filter((r: any) => r.completed).length ?? 0;
+      const totalToday = todayPlan?.recommendations?.length ?? 0;
+      const adherencePercent = totalToday > 0 ? Math.round((completedToday / totalToday) * 100) : 0;
+
+      res.status(200).json({ streak, completedToday, totalToday, adherencePercent });
+    } catch (err: any) {
+      res.status(500).json({ error: 'Failed to get streak: ' + err.message });
+    }
+  }
+
+  /**
    * POST /api/planner/generate
    * Generates or refreshes today's Gemini AI daily plan
    */

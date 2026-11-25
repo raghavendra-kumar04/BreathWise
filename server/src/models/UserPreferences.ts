@@ -12,6 +12,7 @@ export interface IUserPreferences extends Document {
       commuteEnd?: string;
     };
   };
+  healthSensitivity: 'normal' | 'mild-allergy' | 'asthmatic' | 'copd' | 'senior' | 'pediatric';
   budget: 'low-cost' | 'moderate' | 'premium';
   interests: string[];
   notificationEnabled: boolean;
@@ -62,6 +63,11 @@ const UserPreferencesSchema = new Schema<IUserPreferences>(
     notificationEnabled: {
       type: Boolean,
       default: true,
+    },
+    healthSensitivity: {
+      type: String,
+      enum: ['normal', 'mild-allergy', 'asthmatic', 'copd', 'senior', 'pediatric'],
+      default: 'normal',
     },
   },
   {

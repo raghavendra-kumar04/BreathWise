@@ -26,6 +26,9 @@ export const ProfilePage: React.FC = () => {
   const [notificationEnabled, setNotificationEnabled] = useState(
     preferences?.notificationEnabled ?? true
   );
+  const [healthSensitivity, setHealthSensitivity] = useState<UserPreferences['healthSensitivity']>(
+    preferences?.healthSensitivity || 'normal'
+  );
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,6 +43,7 @@ export const ProfilePage: React.FC = () => {
         },
         budget,
         notificationEnabled,
+        healthSensitivity,
       });
       setSavedSuccess(true);
       setTimeout(() => setSavedSuccess(false), 3000);
@@ -198,6 +202,28 @@ export const ProfilePage: React.FC = () => {
                 onChange={(e) => setNotificationEnabled(e.target.checked)}
                 className="w-4 h-4 accent-forest cursor-pointer"
               />
+            </div>
+
+            {/* Health Sensitivity */}
+            <div>
+              <label className="block text-xs font-bold text-charcoal uppercase tracking-wider mb-1">
+                Health Sensitivity Profile
+              </label>
+              <p className="text-[10px] text-charcoal/60 mb-2">
+                Gemini AI tailors pollution thresholds and advice based on your health condition.
+              </p>
+              <select
+                value={healthSensitivity}
+                onChange={(e: any) => setHealthSensitivity(e.target.value)}
+                className="w-full p-3 bg-ivory rounded-xl border border-sage/30 text-sm focus:outline-none focus:border-forest text-charcoal"
+              >
+                <option value="normal">🟢 Standard — No Known Sensitivity</option>
+                <option value="mild-allergy">🟡 Mild Allergies / Rhinitis</option>
+                <option value="asthmatic">🟠 Asthmatic / Reactive Airways</option>
+                <option value="copd">🔴 COPD / Emphysema</option>
+                <option value="senior">🔵 Senior Citizen (60+ yrs)</option>
+                <option value="pediatric">🟣 Child / Pediatric</option>
+              </select>
             </div>
 
             <button

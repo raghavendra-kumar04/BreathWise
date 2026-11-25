@@ -9,6 +9,7 @@ import {
   Trash2,
   MapPin,
   Lightbulb,
+  Zap,
 } from 'lucide-react';
 
 interface ChatMessage {
@@ -22,10 +23,22 @@ interface ChatMessage {
   };
 }
 
+const SCENARIO_CHIPS = [
+  { label: '🧒 School walk safety', prompt: 'Can I walk my child to school safely today?' },
+  { label: '🔥 Chulha vs induction', prompt: 'Should I cook on chulha or switch to induction today?' },
+  { label: '🪟 Open windows now?', prompt: 'Best time to open windows for ventilation today?' },
+  { label: '😷 Mask under ₹500', prompt: 'What mask should I buy under ₹500 for today\'s air quality?' },
+  { label: '🏃 Safe to jog?', prompt: 'Is it safe to go jogging outside right now?' },
+  { label: '🛡️ Top 3 air tips', prompt: 'What are today\'s top 3 air protection tips for me?' },
+  { label: '🌾 Rural air quality', prompt: 'How is village air quality different from city air quality?' },
+  { label: '🌬️ PM2.5 danger', prompt: 'Why is PM2.5 dangerous and how can I protect myself?' },
+];
+
 export const AssistantPage: React.FC = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [inputMessage, setInputMessage] = useState('');
+  const [chipsVisible, setChipsVisible] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const lat = user?.location?.latitude ?? 28.6139;
@@ -74,10 +87,18 @@ export const AssistantPage: React.FC = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['chatHistory'] });
+      setChipsVisible(true);
     },
   });
 
   const messages: ChatMessage[] = historyData || [];
+
+  // Hide chips once first message is sent
+  useEffect(() => {
+    if (messages.length > 0) {
+      setChipsVisible(false);
+    }
+  }, [messages.length]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -93,7 +114,14 @@ export const AssistantPage: React.FC = () => {
 
     const text = inputMessage.trim();
     setInputMessage('');
+    setChipsVisible(false);
     chatMutation.mutate(text);
+  };
+
+  const handleChipClick = (prompt: string) => {
+    if (chatMutation.isPending) return;
+    setChipsVisible(false);
+    chatMutation.mutate(`${prompt} (Location: ${city})`);
   };
 
   const handleSuggestedPrompt = (prompt: string) => {
@@ -103,9 +131,9 @@ export const AssistantPage: React.FC = () => {
 
   const suggestions = [
     `Is it safe to go jogging outside in ${city} right now?`,
-    "What are the best indoor air tips without buying an expensive purifier?",
-    "Why does PM2.5 increase so drastically during Indian winter mornings?",
-    "How can I minimize smoke exposure while cooking with LPG?",
+    'What are the best indoor air tips without buying an expensive purifier?',
+    'Why does PM2.5 increase so drastically during Indian winter mornings?',
+    'How can I minimize smoke exposure while cooking with LPG?',
   ];
 
   return (
@@ -118,7 +146,7 @@ export const AssistantPage: React.FC = () => {
               BreatheWise AI Companion
             </h1>
             <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber/15 text-amber-dark font-bold flex items-center gap-1">
-              <Sparkles className="w-3 h-3" /> Gemini 2.5 Flash
+              <Sparkles className="w-3 h-3" /> Gemini + Groq
             </span>
           </div>
           <p className="text-xs text-charcoal/70">
@@ -141,23 +169,46 @@ export const AssistantPage: React.FC = () => {
             <button
               onClick={() => clearMutation.mutate()}
               disabled={clearMutation.isPending}
-              className="p-2 rounded-xl text-charcoal/50 hover:text-red-600 hover:bg-red-50 transition text-xs"
-              title="Clear discussion"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs text-charcoal/60 hover:bg-red-50 hover:text-red-500 transition border border-sage/20"
+              title="Clear chat history"
+              aria-label="Clear conversation history"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Clear</span>
             </button>
           )}
         </div>
       </div>
 
-      {/* Chat Messages Scroll Container */}
-      <div className="flex-1 overflow-y-auto space-y-4 p-4 rounded-3xl bg-white/70 border border-sage/20 shadow-xs">
+      {/* Scenario Chips — shown before first message */}
+      {chipsVisible && messages.length === 0 && (
+        <div className="shrink-0 space-y-2">
+          <div className="flex items-center gap-1.5 text-[10px] font-bold text-charcoal/50 uppercase tracking-widest">
+            <Zap className="w-3 h-3 text-amber-dark" />
+            Quick scenarios — tap to ask instantly
+          </div>
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide snap-x">
+            {SCENARIO_CHIPS.map((chip, i) => (
+              <button
+                key={i}
+                onClick={() => handleChipClick(chip.prompt)}
+                disabled={chatMutation.isPending}
+                className="snap-start shrink-0 px-3 py-2 rounded-2xl bg-white border border-sage/30 text-xs text-charcoal font-medium hover:bg-forest hover:text-ivory hover:border-forest transition whitespace-nowrap shadow-xs disabled:opacity-50"
+              >
+                {chip.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Chat Area */}
+      <div className="flex-1 overflow-y-auto rounded-3xl bg-white/60 p-4 space-y-3">
         {isLoading ? (
-          <div className="h-full flex items-center justify-center text-xs text-forest">
-            Loading context history...
+          <div className="h-full flex items-center justify-center">
+            <div className="w-6 h-6 border-4 border-forest border-t-transparent rounded-full animate-spin" />
           </div>
         ) : messages.length === 0 ? (
-          /* Empty Discussion Suggestions */
           <div className="h-full flex flex-col items-center justify-center text-center max-w-lg mx-auto py-8 space-y-6">
             <div className="w-14 h-14 rounded-2xl bg-forest/10 text-forest flex items-center justify-center shadow-inner">
               <Bot className="w-7 h-7 text-forest" />
