@@ -118,7 +118,9 @@ export class PlannerController {
         if (stations.length > 0) {
           telemetry = stations[0];
         }
-      } catch (e) {}
+      } catch (err: unknown) {
+        console.warn('Planner CPCB nearest stations fetch fallback:', err);
+      }
 
       // 3. Fallback to localized Open-Meteo model for rural/suburban micro-environments
       if (!telemetry) {

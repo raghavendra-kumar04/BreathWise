@@ -16,6 +16,34 @@ import {
   Info,
 } from 'lucide-react';
 
+interface PlanRecommendation {
+  _id: string;
+  category: 'exercise' | 'commute' | 'indoor' | 'ventilation' | 'diet' | 'general';
+  title: string;
+  reason: string;
+  action: string;
+  priority: 'high' | 'medium' | 'low';
+  estimatedImpact: string;
+  suggestedTime?: string;
+  completed: boolean;
+}
+
+interface DailyPlanData {
+  _id: string;
+  dailySummary: string;
+  riskLevel: 'low' | 'moderate' | 'high' | 'very-high' | 'severe';
+  sourceSnapshot?: {
+    source: string;
+    stationName?: string;
+    aqi: number;
+    category: string;
+    pm25?: number;
+    pm10?: number;
+  };
+  recommendations: PlanRecommendation[];
+  limitations: string[];
+}
+
 export const PlannerPage: React.FC = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -25,7 +53,7 @@ export const PlannerPage: React.FC = () => {
   const city = user?.location?.city ?? 'New Delhi';
 
   // 1. Fetch Today's Plan
-  const { data: planData, isLoading } = useQuery({
+  const { data: planData, isLoading } = useQuery<DailyPlanData | null>({
     queryKey: ['dailyPlanToday'],
     queryFn: async () => {
       const res = await api.get('/planner/today');
@@ -86,7 +114,7 @@ export const PlannerPage: React.FC = () => {
   };
 
   const plan = planData;
-  const completedCount = plan?.recommendations?.filter((r: any) => r.completed)?.length || 0;
+  const completedCount = plan?.recommendations?.filter((r) => r.completed)?.length || 0;
   const totalCount = plan?.recommendations?.length || 0;
   const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
@@ -213,7 +241,7 @@ export const PlannerPage: React.FC = () => {
           <div className="space-y-4">
             <h3 className="font-heading font-bold text-lg text-forest">Recommended Actions for Today</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {plan.recommendations.map((rec: any, idx: number) => {
+              {plan.recommendations.map((rec, idx) => {
                 const Icon = getCategoryIcon(rec.category);
                 const isDone = rec.completed;
 

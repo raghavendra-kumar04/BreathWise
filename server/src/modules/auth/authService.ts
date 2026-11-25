@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { User, IUser } from '../../models/User';
+import { User } from '../../models/User';
 import { UserPreferences, IUserPreferences } from '../../models/UserPreferences';
 import { config } from '../../config/env';
 

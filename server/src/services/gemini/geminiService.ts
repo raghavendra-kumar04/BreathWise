@@ -56,8 +56,6 @@ export class GeminiService {
       budget?: string;
     };
   }): Promise<GeneratedPlan> {
-    const ai = this.getClient();
-
     const systemPrompt = `You are BreatheWise, an expert AI environmental health companion for India.
 You transform actual, ground-level air quality and meteorological data into realistic, personalized daily decisions.
 
@@ -167,8 +165,6 @@ Provide 4 to 6 distinct, highly practical recommendations tailored to this user'
     };
     userLifestyle?: any;
   }): Promise<string> {
-    const ai = this.getClient();
-
     const systemPrompt = `You are BreatheWise AI, an intelligent, empathetic, science-grounded air quality advisor for India.
 You provide clear, accurate guidance to questions about pollution, health precautions, indoor air, masks, purifiers, and lifestyle choices.
 

@@ -38,7 +38,7 @@ export const AssistantPage: React.FC = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [inputMessage, setInputMessage] = useState('');
-  const [chipsVisible, setChipsVisible] = useState(true);
+  const [chipsDismissed, setChipsDismissed] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const lat = user?.location?.latitude ?? 28.6139;
@@ -87,26 +87,16 @@ export const AssistantPage: React.FC = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['chatHistory'] });
-      setChipsVisible(true);
+      setChipsDismissed(false);
     },
   });
 
   const messages: ChatMessage[] = historyData || [];
+  const chipsVisible = !chipsDismissed && messages.length === 0;
 
-  // Hide chips once first message is sent
   useEffect(() => {
-    if (messages.length > 0) {
-      setChipsVisible(false);
-    }
-  }, [messages.length]);
-
-  const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages, chatMutation.isPending]);
+  }, [messages.length, chatMutation.isPending]);
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,13 +104,13 @@ export const AssistantPage: React.FC = () => {
 
     const text = inputMessage.trim();
     setInputMessage('');
-    setChipsVisible(false);
+    setChipsDismissed(true);
     chatMutation.mutate(text);
   };
 
   const handleChipClick = (prompt: string) => {
     if (chatMutation.isPending) return;
-    setChipsVisible(false);
+    setChipsDismissed(true);
     chatMutation.mutate(`${prompt} (Location: ${city})`);
   };
 

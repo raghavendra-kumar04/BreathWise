@@ -31,7 +31,8 @@ export const requireAuth = (
 
     req.user = decoded;
     next();
-  } catch (error) {
+  } catch (error: unknown) {
+    console.warn('Auth token verification failure:', error);
     res.status(401).json({ error: 'Invalid or expired authentication token.' });
   }
 };

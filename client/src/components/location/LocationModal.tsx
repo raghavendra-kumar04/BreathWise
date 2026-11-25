@@ -182,7 +182,8 @@ export const LocationModal: React.FC<LocationModalProps> = ({ isOpen, onClose })
         const state = address.state || '';
 
         await handleLocationConfirmed(city, state, latitude, longitude, false);
-      } catch (err) {
+      } catch (err: unknown) {
+        console.warn('Reverse geocoding failed, using detected location label:', err);
         await handleLocationConfirmed('Detected Location', '', latitude, longitude, false);
       } finally {
         setDetectingGps(false);
@@ -268,7 +269,8 @@ export const LocationModal: React.FC<LocationModalProps> = ({ isOpen, onClose })
       if (combined.length === 0) {
         setStatusMsg({ type: 'error', text: `No results found for "${searchQuery}". Try another spelling.` });
       }
-    } catch (err) {
+    } catch (err: unknown) {
+      console.warn('Geocoding search failed, checking presets:', err);
       // If Nominatim fails or is blocked, use matching presets
       if (matchingPresets.length > 0) {
         setSearchResults(
@@ -303,7 +305,8 @@ export const LocationModal: React.FC<LocationModalProps> = ({ isOpen, onClose })
       const longitude = parseFloat(item.lon);
 
       await handleLocationConfirmed(city, state, latitude, longitude, true);
-    } catch (err) {
+    } catch (err: unknown) {
+      console.warn('Location confirmation error:', err);
       setStatusMsg({ type: 'error', text: 'Failed to update location.' });
     }
   };

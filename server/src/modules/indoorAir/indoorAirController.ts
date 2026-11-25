@@ -28,7 +28,9 @@ export class IndoorAirController {
           outdoorPm25 = stations[0].pollutants.pm25 || 80;
           stationName = stations[0].station;
         }
-      } catch (e) {}
+      } catch (err: unknown) {
+        console.warn('IndoorAir CPCB nearest stations fetch fallback:', err);
+      }
 
       // 2. Weather
       const weather = await OpenMeteoService.getCurrentWeather(lat, lon).catch(() => ({

@@ -13,6 +13,40 @@ import {
   RefreshCw,
 } from 'lucide-react';
 
+interface IndoorTipItem {
+  id: string;
+  category: string;
+  title: string;
+  description: string;
+  cost: 'free' | 'low-cost' | 'investment';
+  impact: string;
+}
+
+interface IndoorGuidanceData {
+  ventilation: {
+    status: 'safe' | 'caution' | 'unsafe';
+    title: string;
+    advice: string;
+    bestWindowToday: string;
+  };
+  cookingGuidance: {
+    fuelName: string;
+    riskLevel: string;
+    keyRisk: string;
+    actions: string[];
+  };
+  outdoorContext: {
+    city: string;
+    aqi: number;
+    category: string;
+    pm25: number;
+    stationName?: string;
+    windSpeed?: number;
+    temperature?: number;
+  };
+  practicalTips: IndoorTipItem[];
+}
+
 export const IndoorAirPage: React.FC = () => {
   const { user, preferences } = useAuth();
 
@@ -21,7 +55,7 @@ export const IndoorAirPage: React.FC = () => {
   const city = user?.location?.city ?? 'New Delhi';
   const cookingFuel = preferences?.lifestyle?.cookingFuel ?? 'lpg';
 
-  const { data: guidanceData, isLoading, refetch, isRefetching } = useQuery({
+  const { data: guidanceData, isLoading, refetch, isRefetching } = useQuery<IndoorGuidanceData>({
     queryKey: ['indoorAirGuidance', lat, lon, city, cookingFuel],
     queryFn: async () => {
       const res = await api.get(`/indoor-air/guidance?lat=${lat}&lon=${lon}&city=${encodeURIComponent(city)}&cookingFuel=${cookingFuel}`);
@@ -173,7 +207,7 @@ export const IndoorAirPage: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {tips.map((tip: any) => (
+              {tips.map((tip) => (
                 <div
                   key={tip.id}
                   className="p-5 rounded-2xl bg-white border border-sage/20 shadow-xs hover:border-forest/30 transition space-y-2"

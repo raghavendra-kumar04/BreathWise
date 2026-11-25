@@ -12,8 +12,33 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+interface ActivityItem {
+  _id: string;
+  actionType: string;
+  title: string;
+  description?: string;
+  metrics?: {
+    co2SavedKg?: number;
+    particulateAvoidedUg?: number;
+    exposureHoursAvoided?: number;
+  };
+  loggedAt: string;
+}
+
+interface InsightsSummaryData {
+  stats: {
+    completedProtectiveActions: number;
+    totalRecommendationsReceived: number;
+    adherenceRatePercent: number;
+    totalCo2SavedKg: number;
+    totalExposureHoursAvoided: number;
+    communityReportsSubmitted: number;
+  };
+  recentActivities: ActivityItem[];
+}
+
 export const InsightsPage: React.FC = () => {
-  const { data: summaryData, isLoading } = useQuery({
+  const { data: summaryData, isLoading } = useQuery<InsightsSummaryData>({
     queryKey: ['insightsSummary'],
     queryFn: async () => {
       const res = await api.get('/insights/summary');
@@ -150,7 +175,7 @@ export const InsightsPage: React.FC = () => {
               </div>
             ) : (
               <div className="space-y-2.5">
-                {recentActivities.map((act: any) => (
+                {recentActivities.map((act) => (
                   <div
                     key={act._id}
                     className="p-3.5 rounded-2xl bg-ivory/50 border border-sage/20 flex items-center justify-between text-xs"

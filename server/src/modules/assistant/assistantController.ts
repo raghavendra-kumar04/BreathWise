@@ -47,7 +47,9 @@ export class AssistantController {
       try {
         const stations = await CPCBService.getNearestStations(latitude, longitude, cityName, 30);
         if (stations.length > 0) telemetry = stations[0];
-      } catch (e) {}
+      } catch (err: unknown) {
+        console.warn('Assistant CPCB nearest stations fetch fallback:', err);
+      }
 
       if (!telemetry) {
         const forecast = await OpenMeteoService.getAirQualityForecast(latitude, longitude).catch(() => null);

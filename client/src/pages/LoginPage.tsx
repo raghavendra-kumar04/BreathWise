@@ -19,8 +19,9 @@ export const LoginPage: React.FC = () => {
     try {
       await login({ email, password });
       navigate('/dashboard');
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to sign in. Please verify your credentials.');
+    } catch (err: unknown) {
+      const errorMsg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Failed to sign in. Please verify your credentials.';
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }

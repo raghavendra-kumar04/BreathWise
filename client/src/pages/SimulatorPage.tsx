@@ -17,13 +17,13 @@ export const SimulatorPage: React.FC = () => {
   const [commuteDaysPerWeek, setCommuteDaysPerWeek] = useState<number>(5);
 
   const simulateMutation = useMutation({
-    mutationFn: async (payload: any) => {
+    mutationFn: async (payload: { currentMode: string; targetMode: string; dailyRoundTripKm: number; commuteDaysPerWeek: number }) => {
       const res = await api.post('/insights/simulator', payload);
       return res.data?.result;
     },
   });
 
-  const handleSimulate = (e?: React.FormEvent) => {
+  const handleSimulate = React.useCallback((e?: React.FormEvent) => {
     if (e) e.preventDefault();
     simulateMutation.mutate({
       currentMode,
@@ -31,12 +31,12 @@ export const SimulatorPage: React.FC = () => {
       dailyRoundTripKm,
       commuteDaysPerWeek,
     });
-  };
+  }, [currentMode, targetMode, dailyRoundTripKm, commuteDaysPerWeek, simulateMutation]);
 
   // Run initial simulation on component mount if empty
   React.useEffect(() => {
     handleSimulate();
-  }, [currentMode, targetMode, dailyRoundTripKm, commuteDaysPerWeek]);
+  }, [handleSimulate]);
 
   const result = simulateMutation.data;
 
@@ -73,7 +73,7 @@ export const SimulatorPage: React.FC = () => {
               </label>
               <select
                 value={currentMode}
-                onChange={(e: any) => setCurrentMode(e.target.value)}
+                onChange={(e) => setCurrentMode(e.target.value as 'petrol-car' | 'diesel-car' | 'two-wheeler' | 'cab')}
                 className="w-full p-2.5 bg-ivory rounded-xl border border-sage/30 text-charcoal focus:outline-none focus:border-forest"
               >
                 <option value="two-wheeler">Two-Wheeler (Motorcycle / Scooter)</option>
@@ -90,7 +90,7 @@ export const SimulatorPage: React.FC = () => {
               </label>
               <select
                 value={targetMode}
-                onChange={(e: any) => setTargetMode(e.target.value)}
+                onChange={(e) => setTargetMode(e.target.value as 'metro' | 'cng-bus' | 'cycling' | 'wfh' | 'ev')}
                 className="w-full p-2.5 bg-ivory rounded-xl border border-sage/30 text-charcoal focus:outline-none focus:border-forest"
               >
                 <option value="metro">Delhi / Bengaluru Metro Rail</option>

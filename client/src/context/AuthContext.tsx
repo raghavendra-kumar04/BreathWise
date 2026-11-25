@@ -90,8 +90,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(res.data.user);
       setPreferences(res.data.preferences);
       localStorage.setItem('bw_user', JSON.stringify(res.data.user));
-    } catch (err) {
-      console.warn('Session expired or server unavailable');
+    } catch (err: unknown) {
+      console.warn('Session expired or server unavailable', err);
       localStorage.removeItem('bw_token');
       localStorage.removeItem('bw_user');
       setUser(null);
@@ -140,7 +140,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (cachedLocRaw) {
       try {
         initialLocation = JSON.parse(cachedLocRaw);
-      } catch (e) {}
+      } catch (err: unknown) {
+        console.warn('Fallback to guest location parsing failure:', err);
+      }
     }
 
     const res = await api.post('/auth/register', {

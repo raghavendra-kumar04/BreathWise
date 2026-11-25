@@ -32,8 +32,9 @@ export const RegisterPage: React.FC = () => {
     try {
       await register({ name, email, password });
       navigate('/dashboard');
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Registration failed. Please try a different email.');
+    } catch (err: unknown) {
+      const errorMsg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Registration failed. Please try a different email.';
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }

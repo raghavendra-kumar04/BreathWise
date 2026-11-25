@@ -13,6 +13,34 @@ import {
   X,
 } from 'lucide-react';
 
+interface CommunityReportItem {
+  _id: string;
+  userName: string;
+  title: string;
+  description: string;
+  category: 'smoke' | 'dust' | 'garbage-burning' | 'industrial' | 'traffic-jam' | 'other';
+  severity: 'low' | 'moderate' | 'high' | 'hazardous';
+  location: {
+    city: string;
+    neighborhood?: string;
+    latitude: number;
+    longitude: number;
+  };
+  upvotes: number;
+  createdAt: string;
+}
+
+interface NewReportPayload {
+  title: string;
+  description: string;
+  category: string;
+  city: string;
+  neighborhood: string;
+  latitude: number;
+  longitude: number;
+  severity: string;
+}
+
 export const CommunityPage: React.FC = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -31,7 +59,7 @@ export const CommunityPage: React.FC = () => {
   const city = user?.location?.city ?? 'New Delhi';
 
   // 1. Fetch Approved Community Reports
-  const { data: reportsData, isLoading } = useQuery({
+  const { data: reportsData, isLoading } = useQuery<CommunityReportItem[]>({
     queryKey: ['communityReports', city, selectedCategory],
     queryFn: async () => {
       let url = `/community/reports?city=${encodeURIComponent(city)}`;
@@ -45,7 +73,7 @@ export const CommunityPage: React.FC = () => {
 
   // 2. Submit Report Mutation
   const createReportMutation = useMutation({
-    mutationFn: async (payload: any) => {
+    mutationFn: async (payload: NewReportPayload) => {
       const res = await api.post('/community/reports', payload);
       return res.data?.report;
     },
@@ -56,8 +84,9 @@ export const CommunityPage: React.FC = () => {
       setDescription('');
       setNeighborhood('');
     },
-    onError: (err: any) => {
-      setFormError(err.response?.data?.error || 'Failed to submit community observation.');
+    onError: (err: unknown) => {
+      const errorMsg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Failed to submit community observation.';
+      setFormError(errorMsg);
     },
   });
 
@@ -185,7 +214,7 @@ export const CommunityPage: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {reports.map((r: any) => {
+          {reports.map((r) => {
             const badge = getCategoryBadge(r.category);
             return (
               <div

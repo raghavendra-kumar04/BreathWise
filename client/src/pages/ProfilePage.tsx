@@ -126,7 +126,7 @@ export const ProfilePage: React.FC = () => {
               </label>
               <select
                 value={commuteMode}
-                onChange={(e: any) => setCommuteMode(e.target.value)}
+                onChange={(e) => setCommuteMode(e.target.value as UserPreferences['lifestyle']['commuteMode'])}
                 className="w-full p-3 bg-ivory rounded-xl border border-sage/30 text-sm focus:outline-none focus:border-forest text-charcoal"
               >
                 <option value="metro-bus">Public Transit (Metro / Bus)</option>
@@ -145,7 +145,7 @@ export const ProfilePage: React.FC = () => {
               </label>
               <select
                 value={outdoorActivity}
-                onChange={(e: any) => setOutdoorActivity(e.target.value)}
+                onChange={(e) => setOutdoorActivity(e.target.value as UserPreferences['lifestyle']['outdoorActivity'])}
                 className="w-full p-3 bg-ivory rounded-xl border border-sage/30 text-sm focus:outline-none focus:border-forest text-charcoal"
               >
                 <option value="none">Minimal / Indoor-only</option>
@@ -163,7 +163,7 @@ export const ProfilePage: React.FC = () => {
               </label>
               <select
                 value={cookingFuel}
-                onChange={(e: any) => setCookingFuel(e.target.value)}
+                onChange={(e) => setCookingFuel(e.target.value as UserPreferences['lifestyle']['cookingFuel'])}
                 className="w-full p-3 bg-ivory rounded-xl border border-sage/30 text-sm focus:outline-none focus:border-forest text-charcoal"
               >
                 <option value="lpg">LPG (Piped / Cylinder)</option>
@@ -181,7 +181,7 @@ export const ProfilePage: React.FC = () => {
               </label>
               <select
                 value={budget}
-                onChange={(e: any) => setBudget(e.target.value)}
+                onChange={(e) => setBudget(e.target.value as UserPreferences['budget'])}
                 className="w-full p-3 bg-ivory rounded-xl border border-sage/30 text-sm focus:outline-none focus:border-forest text-charcoal"
               >
                 <option value="low-cost">Low-Cost / Free DIY Solutions Only</option>
@@ -214,7 +214,7 @@ export const ProfilePage: React.FC = () => {
               </p>
               <select
                 value={healthSensitivity}
-                onChange={(e: any) => setHealthSensitivity(e.target.value)}
+                onChange={(e) => setHealthSensitivity(e.target.value as UserPreferences['healthSensitivity'])}
                 className="w-full p-3 bg-ivory rounded-xl border border-sage/30 text-sm focus:outline-none focus:border-forest text-charcoal"
               >
                 <option value="normal">🟢 Standard — No Known Sensitivity</option>

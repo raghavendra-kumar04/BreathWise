@@ -1,5 +1,10 @@
 /**
  * Haversine formula to compute great-circle distance between two latitude/longitude pairs
+ * @param lat1 Latitude of first point in decimal degrees
+ * @param lon1 Longitude of first point in decimal degrees
+ * @param lat2 Latitude of second point in decimal degrees
+ * @param lon2 Longitude of second point in decimal degrees
+ * @returns Distance in kilometers rounded to two decimal places
  */
 export function calculateHaversineDistanceKm(
   lat1: number,
