@@ -118,10 +118,12 @@ export const LandingPage: React.FC = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsLocationModalOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-forest/5 hover:bg-forest/10 border border-forest/15 text-xs font-semibold text-forest transition"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-forest/5 hover:bg-forest/10 border border-forest/15 text-xs font-semibold text-forest transition cursor-pointer"
+              title="Click here to change location"
             >
               <MapPin className="w-3.5 h-3.5" />
               <span>{activeLocation.city || 'Set City'}</span>
+              <span className="text-[10px] text-sage-dark font-normal hidden sm:inline">• Click to change</span>
             </button>
 
             {user ? (

@@ -6,6 +6,7 @@ import { AQICard } from '../components/dashboard/AQICard';
 import { PollutantGrid } from '../components/dashboard/PollutantGrid';
 import { ForecastChart } from '../components/dashboard/ForecastChart';
 import { NearbyStations } from '../components/dashboard/NearbyStations';
+import { PersonaRiskCard } from '../components/dashboard/PersonaRiskCard';
 import { LocationModal } from '../components/location/LocationModal';
 import {
   MapPin,
@@ -136,15 +137,19 @@ export const DashboardPage: React.FC = () => {
 
           <button
             onClick={() => setIsLocationModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-white rounded-2xl border border-sage/30 shadow-xs hover:shadow transition text-left"
+            className="group flex items-center gap-2.5 px-4 py-2 bg-white rounded-2xl border border-sage/30 shadow-xs hover:shadow-md hover:border-forest/50 transition text-left cursor-pointer"
+            title="Click here to change location"
           >
-            <div className="w-8 h-8 rounded-xl bg-forest/10 text-forest flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-forest/10 text-forest group-hover:bg-forest group-hover:text-ivory transition flex items-center justify-center">
               <MapPin className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-xs font-bold text-forest">{city}</p>
-              <p className="text-[10px] text-charcoal/60">
-                {activeLocation.state ? `${activeLocation.state} • Change` : 'Tap to change'}
+              <p className="text-xs font-bold text-forest flex items-center gap-1">
+                <span>{city}</span>
+                {activeLocation.state && <span className="text-charcoal/50 font-normal">({activeLocation.state})</span>}
+              </p>
+              <p className="text-[10px] text-sage-dark group-hover:text-forest font-medium transition">
+                Click here to change location
               </p>
             </div>
           </button>
@@ -251,6 +256,15 @@ export const DashboardPage: React.FC = () => {
           <Home className="w-5 h-5 shrink-0 opacity-80" />
         </div>
       </div>
+
+      {/* Contextual Persona-Based Risk Intelligence Banner */}
+      {airData && (
+        <PersonaRiskCard
+          aqi={airData.aqi}
+          category={airData.category}
+          prominentPollutant={airData.prominentPollutant}
+        />
+      )}
 
       {/* Pollutant Breakdown Grid */}
       {airData?.pollutants && (

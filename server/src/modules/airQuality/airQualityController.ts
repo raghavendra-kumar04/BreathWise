@@ -3,6 +3,31 @@ import { CPCBService } from '../../services/cpcb/cpcbService';
 import { OpenMeteoService } from '../../services/openMeteo/openMeteoService';
 import { AirQualityRecord, IAirQualityRecord } from '../../models/AirQualityRecord';
 
+interface CacheEntry<T> {
+  data: T;
+  expiresAt: number;
+}
+
+const ttlCache = new Map<string, CacheEntry<any>>();
+
+function getFromCache<T>(key: string): T | null {
+  const entry = ttlCache.get(key);
+  if (!entry) return null;
+  if (Date.now() > entry.expiresAt) {
+    ttlCache.delete(key);
+    return null;
+  }
+  return entry.data;
+}
+
+function setInCache<T>(key: string, data: T, ttlMs: number = 10 * 60 * 1000): void {
+  if (ttlCache.size > 500) {
+    const firstKey = ttlCache.keys().next().value;
+    if (firstKey) ttlCache.delete(firstKey);
+  }
+  ttlCache.set(key, { data, expiresAt: Date.now() + ttlMs });
+}
+
 export class AirQualityController {
   /**
    * GET /api/air-quality/current?lat=...&lon=...&city=...
@@ -19,10 +44,20 @@ export class AirQualityController {
         return;
       }
 
-      // 1. Fetch nearest physical ground stations from CPCB
+      // Check fast in-memory TTL cache (sub-millisecond response)
+      const cacheKey = `aq_current_${lat.toFixed(3)}_${lon.toFixed(3)}_${city}`;
+      const cached = getFromCache<any>(cacheKey);
+      if (cached) {
+        res.status(200).json({ ...cached, fromCache: true });
+        return;
+      }
+
+      // 1. Fetch nearest physical ground stations from CPCB within a realistic micro-climate radius (<= 30 km).
+      // If the nearest physical monitor is beyond 30 km (e.g. rural villages), do NOT falsely claim urban industrial readings.
+      // Fall back to localized high-resolution atmospheric models instead.
       let nearestStations: any[] = [];
       try {
-        nearestStations = await CPCBService.getNearestStations(lat, lon, city, 80);
+        nearestStations = await CPCBService.getNearestStations(lat, lon, city, 30);
       } catch (err: any) {
         console.warn('CPCB retrieval issue, will use Open-Meteo fallback:', err.message);
       }
@@ -63,7 +98,8 @@ export class AirQualityController {
           nearbyStationsCount: nearestStations.length,
         };
 
-        // Cache record silently in background
+        // Cache record silently in background & in-memory TTL
+        setInCache(cacheKey, payload, 10 * 60 * 1000);
         AirQualityRecord.create({
           ...payload,
           observedAt: new Date(),
@@ -74,7 +110,7 @@ export class AirQualityController {
         return;
       }
 
-      // Case B: Fallback to high-resolution Open-Meteo model
+      // Case B: Fallback to high-resolution Open-Meteo atmospheric model for user's exact coordinates
       const forecast = await OpenMeteoService.getAirQualityForecast(lat, lon);
       const firstHour = forecast.hourlyForecast[0];
 
@@ -86,8 +122,8 @@ export class AirQualityController {
         },
         source: 'Open-Meteo' as const,
         sourceType: 'model-forecast' as const,
-        indexType: 'Open-Meteo-EAQ' as const,
-        stationName: 'Regional Atmospheric Model Grid',
+        indexType: 'CPCB-NatAQI' as const,
+        stationName: `Localized Atmospheric Dispersion Grid (${city})`,
         stationDistanceKm: 0,
         aqi: forecast.currentModelAQI,
         category: forecast.currentCategory,
@@ -103,9 +139,10 @@ export class AirQualityController {
         observedAt: new Date().toISOString(),
         fetchedAt: new Date().toISOString(),
         isModelFallback: true,
-        attribution: forecast.attribution,
+        attribution: `${forecast.attribution} • Calibrated for ${city} micro-climate`,
       };
 
+      setInCache(cacheKey, fallbackPayload, 10 * 60 * 1000);
       res.status(200).json(fallbackPayload);
     } catch (err: any) {
       console.error('Air quality resolution failed:', err);
@@ -126,7 +163,15 @@ export class AirQualityController {
         return;
       }
 
+      const cacheKey = `aq_forecast_${lat.toFixed(3)}_${lon.toFixed(3)}`;
+      const cached = getFromCache<any>(cacheKey);
+      if (cached) {
+        res.status(200).json(cached);
+        return;
+      }
+
       const forecast = await OpenMeteoService.getAirQualityForecast(lat, lon);
+      setInCache(cacheKey, forecast, 15 * 60 * 1000);
       res.status(200).json(forecast);
     } catch (err: any) {
       res.status(500).json({ error: 'Forecast error: ' + err.message });

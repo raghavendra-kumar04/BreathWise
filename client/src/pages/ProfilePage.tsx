@@ -89,9 +89,10 @@ export const ProfilePage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsLocationModalOpen(true)}
-                  className="text-xs text-amber-dark font-semibold hover:underline"
+                  className="text-xs text-amber-dark font-semibold hover:underline cursor-pointer"
+                  title="Click here to change location"
                 >
-                  Change
+                  Click to change
                 </button>
               </div>
             </div>

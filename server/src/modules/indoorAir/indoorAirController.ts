@@ -21,7 +21,7 @@ export class IndoorAirController {
       let stationName = 'Regional Physical Network';
 
       try {
-        const stations = await CPCBService.getNearestStations(lat, lon, city, 80);
+        const stations = await CPCBService.getNearestStations(lat, lon, city, 30);
         if (stations.length > 0) {
           outdoorAqi = stations[0].aqi;
           outdoorCategory = stations[0].category;

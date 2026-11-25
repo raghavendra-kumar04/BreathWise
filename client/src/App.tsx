@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -28,6 +28,8 @@ import {
   Users,
   Sliders,
   Award,
+  Menu,
+  X,
 } from 'lucide-react';
 
 const queryClient = new QueryClient({
@@ -42,6 +44,7 @@ const queryClient = new QueryClient({
 const AuthenticatedHeader: React.FC = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
     { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -54,14 +57,17 @@ const AuthenticatedHeader: React.FC = () => {
   ];
 
   return (
-    <header className="border-b border-sage/30 bg-ivory-light/90 backdrop-blur sticky top-0 z-40">
-      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-        <Link to="/dashboard">
-          <Logo size="md" showSubtitle={false} />
-        </Link>
+    <header className="border-b border-sage/30 bg-ivory/95 backdrop-blur-md sticky top-0 z-40">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+        {/* Left: Brand Logo */}
+        <div className="shrink-0 flex items-center">
+          <Link to="/dashboard">
+            <Logo size="sm" showSubtitle={false} />
+          </Link>
+        </div>
 
-        {/* Middle Navigation for Desktop */}
-        <nav className="hidden xl:flex items-center gap-1 bg-white/70 p-1.5 rounded-2xl border border-sage/25 shadow-xs">
+        {/* Center: Desktop Navigation Bar with pill container */}
+        <nav className="hidden lg:flex items-center gap-1 bg-white/80 px-2 py-1.5 rounded-full border border-sage/30 shadow-xs">
           {navLinks.map((link) => {
             const Icon = link.icon;
             const isActive = location.pathname === link.to;
@@ -69,40 +75,105 @@ const AuthenticatedHeader: React.FC = () => {
               <Link
                 key={link.to}
                 to={link.to}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
                   isActive
                     ? 'bg-forest text-ivory shadow-xs'
-                    : 'text-charcoal/70 hover:text-forest hover:bg-forest/5'
+                    : 'text-charcoal/75 hover:text-forest hover:bg-forest/5'
                 }`}
               >
-                <Icon className="w-3.5 h-3.5" />
+                <Icon className="w-3.5 h-3.5 shrink-0" />
                 <span>{link.label}</span>
               </Link>
             );
           })}
         </nav>
 
-        {/* Right User Bar */}
-        <div className="flex items-center gap-3 text-xs font-semibold">
+        {/* Right: User Profile & Logout (Desktop) */}
+        <div className="hidden sm:flex items-center gap-3 shrink-0">
           <Link
             to="/profile"
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-sage/30 transition ${
-              location.pathname === '/profile' ? 'bg-forest/10 text-forest font-bold' : 'text-forest/80 hover:bg-ivory'
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all text-xs font-semibold ${
+              location.pathname === '/profile'
+                ? 'bg-forest/10 border-forest/30 text-forest'
+                : 'border-sage/30 text-charcoal/80 hover:bg-white hover:text-forest'
             }`}
           >
-            <User className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{user?.name?.split(' ')[0]}</span>
+            <div className="w-5 h-5 rounded-full bg-forest text-ivory flex items-center justify-center text-[10px] font-bold">
+              {user?.name?.charAt(0).toUpperCase() || 'U'}
+            </div>
+            <span className="truncate max-w-[120px]">{user?.name?.split(' ')[0] || 'Profile'}</span>
           </Link>
+
           <button
             onClick={logout}
-            className="flex items-center gap-1 text-charcoal/60 hover:text-red-700 transition px-2 py-1"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-charcoal/60 hover:text-red-700 hover:bg-red-50 transition"
             title="Sign out"
           >
             <LogOut className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Sign out</span>
+            <span>Sign out</span>
+          </button>
+        </div>
+
+        {/* Mobile Hamburger Button */}
+        <div className="lg:hidden flex items-center gap-2">
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2 rounded-xl text-forest hover:bg-forest/5 border border-sage/30 transition"
+            aria-label="Toggle Navigation"
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>
+
+      {/* Mobile Drawer Menu */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden border-t border-sage/20 bg-ivory px-4 py-4 space-y-2 shadow-lg animate-in fade-in slide-in-from-top-2">
+          <div className="grid grid-cols-2 gap-2">
+            {navLinks.map((link) => {
+              const Icon = link.icon;
+              const isActive = location.pathname === link.to;
+              return (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`flex items-center gap-2 p-2.5 rounded-xl text-xs font-semibold transition ${
+                    isActive
+                      ? 'bg-forest text-ivory'
+                      : 'bg-white text-charcoal/80 border border-sage/20 hover:border-forest/30'
+                  }`}
+                >
+                  <Icon className="w-4 h-4 shrink-0" />
+                  <span>{link.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+
+          <div className="pt-3 border-t border-sage/20 flex items-center justify-between text-xs">
+            <Link
+              to="/profile"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2 font-semibold text-forest"
+            >
+              <User className="w-4 h-4" />
+              <span>{user?.name || 'My Profile'}</span>
+            </Link>
+
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                logout();
+              }}
+              className="text-red-600 font-semibold flex items-center gap-1"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Sign out</span>
+            </button>
+          </div>
+        </div>
+      )}
     </header>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import {
@@ -35,6 +35,14 @@ export const AuthPromptModal: React.FC<AuthPromptModalProps> = ({
   const [agreedToTerms, setAgreedToTerms] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   if (!isOpen) return null;
 
@@ -78,10 +86,16 @@ export const AuthPromptModal: React.FC<AuthPromptModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-charcoal/60 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-sage/30 relative">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="auth-modal-title"
+        className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-sage/30 relative"
+      >
         <button
           onClick={onClose}
-          className="absolute right-5 top-5 text-charcoal/40 hover:text-charcoal transition"
+          aria-label="Close dialog"
+          className="absolute right-5 top-5 text-charcoal/40 hover:text-charcoal transition cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
@@ -96,7 +110,7 @@ export const AuthPromptModal: React.FC<AuthPromptModalProps> = ({
         </div>
 
         <div>
-          <h3 className="font-heading font-extrabold text-2xl text-forest">
+          <h3 id="auth-modal-title" className="font-heading font-extrabold text-2xl text-forest">
             {mode === 'register' ? 'Unlock Real-Time AQI & AI Insights' : 'Welcome Back to BreatheWise'}
           </h3>
           <p className="text-xs text-charcoal/70 mt-1 leading-relaxed">

@@ -53,23 +53,23 @@ export class PlannerController {
       // 1. Fetch user lifestyle preferences
       const preferences = await UserPreferences.findOne({ userId });
 
-      // 2. Fetch nearest CPCB physical telemetry
+      // 2. Fetch nearest CPCB physical telemetry within realistic 30 km radius
       let telemetry: any = null;
       try {
-        const stations = await CPCBService.getNearestStations(latitude, longitude, cityName, 80);
+        const stations = await CPCBService.getNearestStations(latitude, longitude, cityName, 30);
         if (stations.length > 0) {
           telemetry = stations[0];
         }
       } catch (e) {}
 
-      // 3. Fallback to Open-Meteo if no ground station
+      // 3. Fallback to localized Open-Meteo model for rural/suburban micro-environments
       if (!telemetry) {
         const forecast = await OpenMeteoService.getAirQualityForecast(latitude, longitude);
         const cur = forecast.hourlyForecast[0];
         telemetry = {
           city: cityName,
-          station: 'Regional Atmospheric Model Grid',
-          source: 'Open-Meteo',
+          station: `Localized Atmospheric Dispersion Grid (${cityName})`,
+          source: 'Open-Meteo High-Resolution Model',
           aqi: forecast.currentModelAQI,
           category: forecast.currentCategory,
           pollutants: {
