@@ -140,7 +140,8 @@ export const PlannerPage: React.FC = () => {
         <button
           onClick={() => generateMutation.mutate()}
           disabled={generateMutation.isPending}
-          className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl bg-forest hover:bg-forest-light text-ivory text-xs font-semibold shadow-md transition disabled:opacity-50"
+          className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl bg-forest hover:bg-forest-light text-ivory text-xs font-semibold shadow-md transition disabled:opacity-50 cursor-pointer"
+          aria-label={plan ? 'Regenerate today action plan' : 'Generate today action plan'}
         >
           <RefreshCw className={`w-4 h-4 ${generateMutation.isPending ? 'animate-spin' : ''}`} />
           <span>{generateMutation.isPending ? 'Generating with Gemini...' : plan ? 'Regenerate Plan' : 'Generate Today\'s Plan'}</span>
@@ -298,11 +299,12 @@ export const PlannerPage: React.FC = () => {
                       </span>
                       <button
                         onClick={() => toggleTaskMutation.mutate({ taskId: rec._id, completed: !isDone })}
-                        className={`text-xs font-semibold px-3 py-1 rounded-xl transition flex items-center gap-1.5 ${
+                        className={`text-xs font-semibold px-3 py-1 rounded-xl transition flex items-center gap-1.5 cursor-pointer ${
                           isDone
                             ? 'bg-emerald-600 text-white'
                             : 'bg-forest/10 hover:bg-forest/20 text-forest'
                         }`}
+                        aria-label={isDone ? `Mark "${rec.title}" as incomplete` : `Mark "${rec.title}" as complete`}
                       >
                         <CheckCircle2 className="w-3.5 h-3.5" />
                         <span>{isDone ? 'Completed' : 'Mark Done'}</span>

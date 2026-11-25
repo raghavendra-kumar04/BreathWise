@@ -129,8 +129,9 @@ export const DashboardPage: React.FC = () => {
           <button
             onClick={() => refetchAir()}
             disabled={isRefetching}
-            className="p-2.5 rounded-2xl bg-white border border-sage/30 hover:bg-ivory text-forest transition shadow-xs disabled:opacity-50"
+            className="p-2.5 rounded-2xl bg-white border border-sage/30 hover:bg-ivory text-forest transition shadow-xs disabled:opacity-50 cursor-pointer"
             title="Refresh Air Metrics"
+            aria-label="Refresh live air metrics"
           >
             <RefreshCw className={`w-4 h-4 ${isRefetching ? 'animate-spin' : ''}`} />
           </button>
@@ -139,6 +140,7 @@ export const DashboardPage: React.FC = () => {
             onClick={() => setIsLocationModalOpen(true)}
             className="group flex items-center gap-2.5 px-4 py-2 bg-white rounded-2xl border border-sage/30 shadow-xs hover:shadow-md hover:border-forest/50 transition text-left cursor-pointer"
             title="Click here to change location"
+            aria-label={`Change current location from ${city}`}
           >
             <div className="w-8 h-8 rounded-xl bg-forest/10 text-forest group-hover:bg-forest group-hover:text-ivory transition flex items-center justify-center">
               <MapPin className="w-4 h-4" />

@@ -118,7 +118,8 @@ export const IndoorAirPage: React.FC = () => {
         <button
           onClick={() => refetch()}
           disabled={isRefetching}
-          className="flex items-center gap-2 px-4 py-2.5 bg-white border border-sage/30 hover:bg-ivory rounded-2xl text-xs font-semibold text-forest shadow-xs transition"
+          className="flex items-center gap-2 px-4 py-2.5 bg-white border border-sage/30 hover:bg-ivory rounded-2xl text-xs font-semibold text-forest shadow-xs transition cursor-pointer disabled:opacity-50"
+          aria-label="Refresh indoor air guidance analysis"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${isRefetching ? 'animate-spin' : ''}`} />
           <span>Refresh Analysis</span>

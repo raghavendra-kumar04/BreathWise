@@ -246,8 +246,9 @@ export const CommunityPage: React.FC = () => {
 
                   <button
                     onClick={() => upvoteMutation.mutate(r._id)}
-                    className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-ivory hover:bg-forest/10 border border-sage/30 text-forest text-xs font-semibold transition"
+                    className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-ivory hover:bg-forest/10 border border-sage/30 text-forest text-xs font-semibold transition cursor-pointer"
                     title="Confirm / Upvote Incident"
+                    aria-label={`Upvote report ${r.title}, currently ${r.upvotes || 1} upvotes`}
                   >
                     <ThumbsUp className="w-3.5 h-3.5" />
                     <span>{r.upvotes || 1}</span>
@@ -262,15 +263,22 @@ export const CommunityPage: React.FC = () => {
       {/* Submission Modal */}
       {isSubmitModalOpen && (
         <div className="fixed inset-0 z-50 bg-charcoal/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-sage/30 space-y-5">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="report-modal-title"
+            className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-sage/30 space-y-5"
+          >
             <div className="flex items-center justify-between pb-3 border-b border-sage/20">
               <div className="flex items-center gap-2">
                 <Flame className="w-5 h-5 text-amber-dark" />
-                <h3 className="font-heading font-bold text-lg text-forest">Report Pollution Hotspot</h3>
+                <h3 id="report-modal-title" className="font-heading font-bold text-lg text-forest">Report Pollution Hotspot</h3>
               </div>
               <button
+                type="button"
                 onClick={() => setIsSubmitModalOpen(false)}
-                className="text-charcoal/40 hover:text-charcoal"
+                className="text-charcoal/40 hover:text-charcoal p-1 rounded-lg"
+                aria-label="Close report modal"
               >
                 <X className="w-5 h-5" />
               </button>
