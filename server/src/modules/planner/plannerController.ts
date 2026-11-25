@@ -167,6 +167,7 @@ export class PlannerController {
           outdoorActivity: preferences?.lifestyle?.outdoorActivity,
           cookingFuel: preferences?.lifestyle?.cookingFuel,
           budget: preferences?.budget,
+          healthSensitivity: preferences?.healthSensitivity,
         },
       });
 

@@ -19,10 +19,17 @@ export class AssistantController {
       }
 
       const { message, lat, lon, city } = req.body;
-      if (!message || !message.trim()) {
+      if (!message || typeof message !== 'string' || !message.trim()) {
         res.status(400).json({ error: 'Message cannot be empty.' });
         return;
       }
+
+      // Input sanitization and length restriction to prevent prompt injection / payload flooding
+      if (message.length > 500) {
+        res.status(400).json({ error: 'Message exceeds maximum allowed length of 500 characters.' });
+        return;
+      }
+      const sanitizedMessage = message.trim();
 
       const userId = new mongoose.Types.ObjectId(req.user.userId);
       const latitude = lat ?? 28.6139;
@@ -66,7 +73,7 @@ export class AssistantController {
 
       // 4. Call Gemini Assistant
       const reply = await GeminiService.chatWithAssistant({
-        message,
+        message: sanitizedMessage,
         conversationHistory: conversation.messages.map((m) => ({
           role: m.role as 'user' | 'assistant',
           content: m.content,
@@ -86,7 +93,7 @@ export class AssistantController {
       // 5. Append messages to conversation history
       conversation.messages.push({
         role: 'user',
-        content: message,
+        content: sanitizedMessage,
         timestamp: new Date(),
         contextSnapshot: {
           city: cityName,

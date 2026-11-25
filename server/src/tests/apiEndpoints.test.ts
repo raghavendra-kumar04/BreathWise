@@ -42,6 +42,34 @@ describe('API Integration Test Suite', () => {
     });
   });
 
+  describe('POST /api/auth/register (Password Security Constraints)', () => {
+    test('rejects weak password without numbers or special characters with 400', async () => {
+      const res = await request(app)
+        .post('/api/auth/register')
+        .send({
+          name: 'Security Test',
+          email: 'test_sec@breathewise.in',
+          password: 'weakpassword',
+        });
+
+      expect(res.status).toBe(400);
+      expect(res.body.error).toContain('Password must be at least 8 characters long');
+    });
+
+    test('rejects short passwords (< 8 characters) with 400', async () => {
+      const res = await request(app)
+        .post('/api/auth/register')
+        .send({
+          name: 'Security Test',
+          email: 'test_sec2@breathewise.in',
+          password: 'Pass1!',
+        });
+
+      expect(res.status).toBe(400);
+      expect(res.body.error).toContain('Password must be at least 8 characters long');
+    });
+  });
+
   describe('Authentication Protected Endpoints (Security Guardrails)', () => {
     test('GET /api/auth/me returns 401 Unauthorized without token', async () => {
       const res = await request(app).get('/api/auth/me');

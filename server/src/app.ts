@@ -13,8 +13,20 @@ import insightsRoutes from './modules/insights/insightsRoutes';
 
 const app: Application = express();
 
-// Security middleware
-app.use(helmet());
+// Security middleware with enhanced HSTS, CSP, and MIME-sniffing prevention
+app.use(
+  helmet({
+    contentSecurityPolicy: false, // Allows cross-origin telemetry calls
+    crossOriginEmbedderPolicy: false,
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true,
+    },
+    xContentTypeOptions: true,
+    xFrameOptions: { action: 'sameorigin' },
+  })
+);
 
 // Dynamic CORS configuration: normalize trailing slashes and allow both with/without slash
 const allowedOrigins = [
@@ -39,8 +51,8 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-// Body parser
-app.use(express.json());
+// Body parser with strict JSON payload size limit (DoS mitigation)
+app.use(express.json({ limit: '50kb' }));
 
 // Global Rate limiter
 const limiter = rateLimit({

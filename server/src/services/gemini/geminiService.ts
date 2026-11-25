@@ -54,6 +54,7 @@ export class GeminiService {
       outdoorActivity?: string;
       cookingFuel?: string;
       budget?: string;
+      healthSensitivity?: string;
     };
   }): Promise<GeneratedPlan> {
     const systemPrompt = `You are BreatheWise, an expert AI environmental health companion for India.
@@ -78,11 +79,17 @@ CURRENT ENVIRONMENTAL GROUND TELEMETRY:
 - Wind Speed: ${params.weather?.windSpeed ?? 5} km/h (${params.weather?.conditionText || 'Calm'})
 - Humidity: ${params.weather?.humidity ?? 50}%
 
-USER LIFESTYLE PROFILE:
+USER LIFESTYLE & CLINICAL HEALTH PROFILE:
+- Health Sensitivity: ${params.userLifestyle?.healthSensitivity || 'standard (no known sensitivity)'}
 - Commute Mode: ${params.userLifestyle?.commuteMode || 'public transit'}
 - Outdoor Activity: ${params.userLifestyle?.outdoorActivity || 'light walk'}
 - Cooking Fuel: ${params.userLifestyle?.cookingFuel || 'LPG'}
 - Budget Preference: ${params.userLifestyle?.budget || 'moderate'}
+
+POLLUTANT ACTION DIFFERENTIATION:
+- If PM2.5/PM10 is dominant: recommend certified N95 particulate filtration and wet mopping.
+- If NO2/SO2/O3 is dominant: advise keeping vehicle ventilation on re-circulation, avoiding peak roadway exhaust corridors, and avoiding midday ozone formation (masks do not filter gaseous ozone).
+- If Health Sensitivity is asthmatic/COPD/pediatric/senior: strictly lower safety thresholds and include pre-medication or school/commute exposure mitigation.
 
 REQUIRED JSON RESPONSE STRUCTURE:
 {

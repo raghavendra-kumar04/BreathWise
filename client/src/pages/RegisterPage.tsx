@@ -23,8 +23,10 @@ export const RegisterPage: React.FC = () => {
       return;
     }
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters.');
+    // Strong password validation: min 8 chars, uppercase, lowercase, number, special char
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setError('Password must be at least 8 characters and include uppercase, lowercase, number, and special character.');
       return;
     }
 
@@ -100,7 +102,7 @@ export const RegisterPage: React.FC = () => {
 
             <div>
               <label className="block text-xs font-semibold text-charcoal uppercase tracking-wider mb-1.5">
-                Password (min. 6 characters)
+                Password (min. 8 characters with Aa, 1, #)
               </label>
               <div className="relative">
                 <Lock className="w-4 h-4 text-charcoal/40 absolute left-3.5 top-3" />

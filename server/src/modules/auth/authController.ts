@@ -11,8 +11,13 @@ export class AuthController {
         return;
       }
 
-      if (password.length < 6) {
-        res.status(400).json({ error: 'Password must be at least 6 characters long.' });
+      // Strong password validation: min 8 chars, at least one uppercase, one lowercase, one number, and one special char
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
+      if (!passwordRegex.test(password)) {
+        res.status(400).json({
+          error:
+            'Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.',
+        });
         return;
       }
 
