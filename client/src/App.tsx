@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { PrivateRoute } from './components/layout/PrivateRoute';
@@ -14,8 +14,11 @@ import { IndoorAirPage } from './pages/IndoorAirPage';
 import { CommunityPage } from './pages/CommunityPage';
 import { SimulatorPage } from './pages/SimulatorPage';
 import { InsightsPage } from './pages/InsightsPage';
+import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
+import { TermsPage } from './pages/TermsPage';
+import { NotFoundPage } from './pages/NotFoundPage';
+import { Logo } from './components/ui/Logo';
 import {
-  Wind,
   User,
   LogOut,
   Calendar,
@@ -53,14 +56,8 @@ const AuthenticatedHeader: React.FC = () => {
   return (
     <header className="border-b border-sage/30 bg-ivory-light/90 backdrop-blur sticky top-0 z-40">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-        <Link to="/dashboard" className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-xl bg-forest flex items-center justify-center text-ivory shadow-sm">
-            <Wind className="w-5 h-5 text-sage" />
-          </div>
-          <div>
-            <span className="font-heading font-extrabold text-xl text-forest tracking-tight">BreatheWise</span>
-            <span className="ml-2 text-xs bg-sage/20 text-forest px-2 py-0.5 rounded-full font-medium">India</span>
-          </div>
+        <Link to="/dashboard">
+          <Logo size="md" showSubtitle={false} />
         </Link>
 
         {/* Middle Navigation for Desktop */}
@@ -120,6 +117,8 @@ export default function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/privacy" element={<PrivacyPolicyPage />} />
+            <Route path="/terms" element={<TermsPage />} />
 
             {/* Protected Routes */}
             <Route element={<PrivateRoute />}>
@@ -213,8 +212,8 @@ export default function App() {
               />
             </Route>
 
-            {/* Catch-all redirect */}
-            <Route path="*" element={<Navigate to="/" replace />} />
+            {/* 404 Catch-All Page */}
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   MapPin,
   Lock,
@@ -10,6 +10,7 @@ import {
   AlertCircle,
   X,
 } from 'lucide-react';
+import { Logo } from '../ui/Logo';
 
 interface AuthPromptModalProps {
   isOpen: boolean;
@@ -31,6 +32,7 @@ export const AuthPromptModal: React.FC<AuthPromptModalProps> = ({
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [agreedToTerms, setAgreedToTerms] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -39,6 +41,12 @@ export const AuthPromptModal: React.FC<AuthPromptModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (mode === 'register' && !agreedToTerms) {
+      setError('Please agree to the Privacy Policy and Terms of Service to proceed.');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -78,10 +86,13 @@ export const AuthPromptModal: React.FC<AuthPromptModalProps> = ({
           <X className="w-5 h-5" />
         </button>
 
-        {/* Location Detection Badge Header */}
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold mb-4 w-fit">
-          <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-          <span>Location Identified: <strong>{detectedCity}</strong> {detectedState ? `(${detectedState})` : ''}</span>
+        {/* Brand Logo & Location Identified Header */}
+        <div className="flex items-center justify-between mb-4 pr-6">
+          <Logo size="sm" />
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-semibold">
+            <MapPin className="w-3 h-3 text-emerald-600" />
+            <span className="truncate max-w-[150px]">{detectedCity} {detectedState ? `(${detectedState})` : ''}</span>
+          </div>
         </div>
 
         <div>
@@ -154,6 +165,27 @@ export const AuthPromptModal: React.FC<AuthPromptModalProps> = ({
                 className="w-full pl-10 pr-3 py-2 bg-ivory rounded-xl border border-sage/30 text-xs focus:outline-none focus:border-forest text-charcoal"
               />
             </div>
+          </div>
+
+          {/* Privacy & Terms Agreement Checkbox */}
+          <div className="flex items-start gap-2 pt-1">
+            <input
+              type="checkbox"
+              id="modal-terms"
+              checked={agreedToTerms}
+              onChange={(e) => setAgreedToTerms(e.target.checked)}
+              className="mt-0.5 w-3.5 h-3.5 accent-forest rounded cursor-pointer"
+            />
+            <label htmlFor="modal-terms" className="text-[11px] text-charcoal/70 leading-tight cursor-pointer">
+              I agree to the{' '}
+              <Link to="/terms" target="_blank" className="font-semibold text-forest underline hover:text-forest-light">
+                Terms of Service
+              </Link>{' '}
+              and acknowledge the{' '}
+              <Link to="/privacy" target="_blank" className="font-semibold text-forest underline hover:text-forest-light">
+                Privacy Policy
+              </Link>.
+            </label>
           </div>
 
           <button
