@@ -3,7 +3,7 @@ services:
     name: breathewise-api
     env: node
     plan: free
-    buildCommand: npm install && npm --prefix server install && npm --prefix server run build
+    buildCommand: npm --prefix server install --include=dev && npm --prefix server run build
     startCommand: npm --prefix server run start
     envVars:
       - key: NODE_ENV
