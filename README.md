@@ -110,24 +110,45 @@ npm test
 
 ---
 
-## 🚀 7. Quick Setup & Run Instructions
+## 🚀 7. Deployment & Demo Setup (Phase 6)
+
+### One-Click Demo Seeding
+To populate realistic demo data (Demo user with Asthmatic profile, pre-generated daily plan with active streak, and verified community reports for Delhi):
+```bash
+npm run seed
+```
+Demo Credentials:
+- **Email:** `demo@breathewise.in`
+- **Password:** `Demo@2026`
+
+### Production Deployment Architecture
+- **Frontend (Vercel):** Pre-configured with `client/vercel.json` SPA rewrite rules. Set `VITE_API_BASE_URL` in Vercel environment to your backend URL.
+- **Backend (Render):** Configured with root `render.yaml` blueprint. Supports automated builds via `npm run build` and runs on Node production runtime with health checks at `/api/health`.
+- **Database (MongoDB Atlas):** Compatible with free tier (M0) clusters with automatic indexing on `userId`, `date`, and `status`.
+
+---
+
+## 💻 8. Quick Setup & Run Instructions
 
 ### Prerequisites
 - Node.js v18+ (tested on Node v20/v24)
 - MongoDB instance (local or Atlas)
-- Google AI Studio Gemini API Key
+- Google AI Studio Gemini API Key or Groq API Key
 
 ### Installation
 ```bash
 # Clone the repository
-git clone <your-public-repo-url>
-cd breathwise
+git clone https://github.com/raghavendra-kumar04/BreathWise.git
+cd BreathWise
 
 # Run automated tests
 npm test
 
 # Build both client and server
 npm run build
+
+# Seed demo account & sample telemetry
+npm run seed
 
 # Start backend server (Terminal 1)
 npm run server:dev
@@ -142,4 +163,4 @@ Open **`http://localhost:5173`** in your browser.
 
 ## 📜 Medical & Data Disclaimers
 - **Medical Disclaimer:** BreatheWise provides exposure mitigation guidance and is not a clinical diagnostic medical device. Users experiencing acute respiratory distress should seek emergency medical care.
-- **Data Attribution:** Ground station telemetry provided by Central Pollution Control Board (CPCB) via [data.gov.in](https://data.gov.in). Meteorological models provided by [Open-Meteo](https://open-meteo.com). AI reasoning powered by [Google Gemini 2.5 Flash](https://ai.google.dev).
+- **Data Attribution:** Ground station telemetry provided by Central Pollution Control Board (CPCB) via [data.gov.in](https://data.gov.in). Meteorological models provided by [Open-Meteo](https://open-meteo.com). AI reasoning powered by Google Gemini and Groq LLaMA models.
