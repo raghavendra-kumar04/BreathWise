@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@theme {
+  --color-forest: #203C32;
+  --color-forest-light: #2d5345;
+  --color-forest-dark: #142720;
+
+  --color-sage: #8DAA91;
+  --color-sage-light: #a9c0ac;
+  --color-sage-dark: #6f8d74;
+
+  --color-ivory: #F6F5EF;
+  --color-ivory-light: #fbfbf8;
+  --color-ivory-dark: #eae8dc;
+
+  --color-amber: #E5A65A;
+  --color-amber-light: #ecba7d;
+  --color-amber-dark: #cb8734;
+
+  --color-charcoal: #343B38;
+  --color-charcoal-light: #4c5551;
+  --color-charcoal-dark: #202523;
+
+  --font-heading: 'Manrope', sans-serif;
+  --font-sans: 'Inter', sans-serif;
+}
+
+:root {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  color: #343B38;
+  background-color: #F6F5EF;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: #F6F5EF;
+  color: #343B38;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Manrope', sans-serif;
+}
