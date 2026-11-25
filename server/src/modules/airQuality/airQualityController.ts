@@ -195,7 +195,8 @@ export class AirQualityController {
       const stations = await CPCBService.getNearestStations(lat, lon, city, 120);
       res.status(200).json({ stations });
     } catch (err: any) {
-      res.status(500).json({ error: 'Station query error: ' + err.message });
+      console.warn('Station query handled gracefully:', err.message);
+      res.status(200).json({ stations: [], notice: err.message });
     }
   }
 

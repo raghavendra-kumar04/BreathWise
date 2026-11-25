@@ -34,7 +34,8 @@ export class CPCBService {
    */
   static async fetchRawCPCBData(filters: { city?: string; state?: string; limit?: number } = {}) {
     if (!config.dataGovApiKey) {
-      throw new Error('DATA_GOV_API_KEY is not configured on server.');
+      console.warn('DATA_GOV_API_KEY is not configured on server. Returning empty CPCB set.');
+      return [];
     }
 
     const limit = filters.limit || 500;
@@ -46,8 +47,13 @@ export class CPCBService {
       url += `&filters%5Bstate%5D=${encodeURIComponent(filters.state)}`;
     }
 
-    const response = await axios.get(url, { timeout: 12000 });
-    return response.data?.records || [];
+    try {
+      const response = await axios.get(url, { timeout: 10000 });
+      return response.data?.records || [];
+    } catch (err: any) {
+      console.warn('CPCB external fetch failed:', err.message);
+      return [];
+    }
   }
 
   /**
