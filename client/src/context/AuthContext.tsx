@@ -102,6 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
+    // oxlint-disable-next-line react/set-state-in-effect
     refreshProfile();
   }, []);
 
@@ -225,6 +226,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
+// oxlint-disable-next-line react/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

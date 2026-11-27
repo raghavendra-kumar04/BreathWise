@@ -23,22 +23,31 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-
-      - name: Install Root Dependencies
-        run: npm ci || npm install
 
       - name: Install Server Dependencies
-        run: cd server && npm install
+        run: |
+          cd server
+          npm ci || npm install
 
       - name: Install Client Dependencies
-        run: cd client && npm install
+        run: |
+          cd client
+          npm ci || npm install
+
+      - name: Code Quality & Lint Verification
+        run: npx oxlint
 
       - name: Run Server Automated Tests (38 Tests)
-        run: npm test
+        run: |
+          cd server
+          npm test
 
       - name: Build Server (TypeScript Compile)
-        run: npm run server:build
+        run: |
+          cd server
+          npm run build
 
       - name: Build Client (Vite Bundle)
-        run: npm run client:build
+        run: |
+          cd client
+          npm run build
