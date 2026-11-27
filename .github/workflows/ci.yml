@@ -1,0 +1,44 @@
+name: BreatheWise CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    name: Build & Test Verification
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install Root Dependencies
+        run: npm ci || npm install
+
+      - name: Install Server Dependencies
+        run: cd server && npm install
+
+      - name: Install Client Dependencies
+        run: cd client && npm install
+
+      - name: Run Server Automated Tests (38 Tests)
+        run: npm test
+
+      - name: Build Server (TypeScript Compile)
+        run: npm run server:build
+
+      - name: Build Client (Vite Bundle)
+        run: npm run client:build

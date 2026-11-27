@@ -1,7 +1,33 @@
 import request from 'supertest';
 import app from '../app';
+import { CPCBService } from '../services/cpcb/cpcbService';
 
 describe('API Integration Test Suite', () => {
+  beforeAll(() => {
+    // Mock external network call so unit/integration tests run instantaneously without external API latency or timeouts
+    jest.spyOn(CPCBService, 'getNearestStations').mockImplementation(async (lat, lon, city) => {
+      if (city === 'Peteru') return [];
+      return [
+        {
+          station: 'Anand Vihar, Delhi - CPCB',
+          city: 'Delhi',
+          state: 'Delhi',
+          latitude: 28.6508,
+          longitude: 77.3152,
+          distanceKm: 3.2,
+          lastUpdate: new Date().toISOString(),
+          pollutants: { pm25: 140, pm10: 250 },
+          aqi: 280,
+          category: 'Poor',
+          prominentPollutant: 'PM2.5',
+        },
+      ];
+    });
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
   describe('GET /api/health', () => {
     test('returns 200 OK with correct status, version, and environment', async () => {
       const res = await request(app).get('/api/health');

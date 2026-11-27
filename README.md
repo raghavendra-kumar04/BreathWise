@@ -4,6 +4,11 @@
 > Built for the **Google PromptWars** Hackathon.  
 > Translating complex Central Pollution Control Board (CPCB) ground telemetry and localized atmospheric dispersion models into personalized daily decisions powered by **Google Gemini** (with Groq LLaMA zero-downtime fallback).
 
+[![CI](https://github.com/raghavendra-kumar04/BreathWise/actions/workflows/ci.yml/badge.svg)](https://github.com/raghavendra-kumar04/BreathWise/actions)
+[![Code Quality](https://img.shields.io/badge/Code%20Quality-A%2B%20(Zero--Any)-brightgreen)](https://github.com/raghavendra-kumar04/BreathWise)
+[![Tests](https://img.shields.io/badge/Tests-38%20Passed%20(100%25)-success)](https://github.com/raghavendra-kumar04/BreathWise)
+[![Licence](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 ---
 
 ## 🎯 1. Challenge Vertical & Personas
